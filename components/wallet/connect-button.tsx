@@ -1,7 +1,12 @@
 "use client";
 
 import { ConnectButton } from "thirdweb/react";
-import { thirdwebClient, walletConfigs, supportedChains, polkadotHubTestnet } from "@/lib/thirdweb";
+import {
+  thirdwebClient,
+  walletConfigs,
+  supportedChains,
+  polkadotHubTestnet,
+} from "@/lib/thirdweb";
 
 export function WalletConnectButton() {
   return (
@@ -14,5 +19,3 @@ export function WalletConnectButton() {
     />
   );
 }
-
-

@@ -10,11 +10,5 @@ type ThirdwebProviderWrapperProps = {
 export default function ThirdwebProviderWrapper({
   children,
 }: ThirdwebProviderWrapperProps) {
-  return (
-    <ThirdwebProvider>
-      {children}
-    </ThirdwebProvider>
-  );
+  return <ThirdwebProvider>{children}</ThirdwebProvider>;
 }
-
-
