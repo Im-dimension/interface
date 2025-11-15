@@ -1,39 +1,18 @@
-import { ButtonHTMLAttributes } from "react";
+"use client";
 
-interface SimpleButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline";
-  size?: "sm" | "md" | "lg";
+interface ActionButtonProps {
+  label: string
+  onClick?: () => void
 }
 
-export function Button({
-  variant = "primary",
-  size = "md",
-  className = "",
-  children,
-  ...props
-}: SimpleButtonProps) {
-  const baseStyles =
-    "inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
-
-  const variants = {
-    primary: "bg-foreground text-background hover:opacity-90",
-    secondary: "bg-secondary text-secondary-foreground hover:opacity-90",
-    outline:
-      "border-2 border-foreground hover:bg-foreground hover:text-background",
-  };
-
-  const sizes = {
-    sm: "h-9 px-4 text-sm rounded-lg",
-    md: "h-10 px-6 text-base rounded-xl",
-    lg: "h-12 px-8 text-lg rounded-xl",
-  };
-
+export function Button({ label, onClick }: ActionButtonProps) {
   return (
-    <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-      {...props}
+    <button 
+      type="button"
+      onClick={onClick}
+      className="bg-[#f4d03f] hover:bg-[#e5c230] transition-colors rounded-full py-2 md:py-6 px-12 md:px-16 font-bold text-[#4a2a1f] text-xl md:text-2xl shadow-lg border-4 border-[#d4a520]/30 w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#d4a520]/40"
     >
-      {children}
+      {label}
     </button>
-  );
+  )
 }

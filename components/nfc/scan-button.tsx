@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { ActionButton } from "@/components/action-button";
+import { Button } from "@/components/ui/button";
 
 type NDEFRecordLite = {
   recordType: string;
@@ -101,7 +101,7 @@ export function ScanButton() {
   }, []);
 
   return (
-    <ActionButton
+    <Button
       label={isScanning ? "SCANNING…" : "SCAN"}
       onClick={isScanning ? undefined : handleScan}
     />
