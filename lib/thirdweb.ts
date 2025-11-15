@@ -18,7 +18,7 @@ export const walletConfigs = [
 
 export const polkadotHubTestnet = defineChain({
   id: 420420422,
-  name: "Polkadot Hub TestNet",
+  name: "Passet Hub",
   rpc: "https://testnet-passet-hub-eth-rpc.polkadot.io",
   nativeCurrency: {
     name: "PAS",
