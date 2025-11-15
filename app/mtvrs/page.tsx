@@ -1,7 +1,7 @@
 "use client";
 
 import { InfoCard } from "@/components/info-card";
-import { ActionButton } from "@/components/action-button";
+import { Button } from "@/components/ui/button";
 
 export default function MTVRsPage() {
   return (
@@ -14,7 +14,7 @@ export default function MTVRsPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-4 sm:gap-8">
-        <ActionButton label="SCAN" />
+        <Button label="SCAN" />
         <InfoCard
           title="INFO"
           description="Latest updates will appear here as features roll out."

@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionButton } from "@/components/action-button";
+import { Button } from "@/components/ui/button";
 import { InfoCard } from "@/components/info-card";
 import { NFTCard } from "@/components/cards/nft-card";
 // import { StorageWidget } from "@/components/contract/storage-widget";
@@ -41,7 +41,7 @@ export default function NFTsPage() {
 
       {/* Bottom Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-4 sm:gap-8">
-        <ActionButton label="SCAN" />
+        <Button label="SCAN" />
         <InfoCard
           title="INFO"
           description="Find all your favorite Chiri merch at the Impossible Store"
