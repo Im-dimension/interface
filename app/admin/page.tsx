@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMintEncryptedNFT, NFTMetadata } from "@/app/hooks/useMintEncryptedNFT";
 import { Button } from "@/components/ui/button";
+import { NFCWriter } from "@/components/nfc/nfc-writer";
 
 const RARITY_OPTIONS = [
   "common",
@@ -42,6 +43,8 @@ export default function AdminPage() {
     image: null,
     mainFile: null,
   });
+
+  const [nfcWriteComplete, setNfcWriteComplete] = useState(false);
 
   const {
     isUploading,
@@ -117,6 +120,7 @@ export default function AdminPage() {
       image: null,
       mainFile: null,
     });
+    setNfcWriteComplete(false);
     reset();
   };
 
@@ -125,23 +129,56 @@ export default function AdminPage() {
       <div className="max-w-4xl mx-auto pb-12">
         <h1 className="text-4xl font-bold mb-8">Admin: Mint Encrypted NFT</h1>
 
-        {success && (
-          <div className="bg-green-900 border border-green-500 rounded-lg p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4">NFT Minted Successfully! 🎉</h2>
-            <div className="space-y-2">
-              <p>
-                <strong>Token ID:</strong> {tokenId}
-              </p>
-              <div className="bg-black p-4 rounded mt-4">
-                <p className="text-sm text-yellow-400 mb-2">
-                  <strong>⚠️ SAVE THIS SECRET - It cannot be recovered!</strong>
+        {success && secret && tokenId && (
+          <div className="space-y-6 mb-8">
+            <div className="bg-green-900 border border-green-500 rounded-lg p-6">
+              <h2 className="text-2xl font-bold mb-4">NFT Minted Successfully! 🎉</h2>
+              <div className="space-y-2">
+                <p>
+                  <strong>Token ID:</strong> {tokenId}
                 </p>
-                <p className="font-mono text-xs break-all">{secret}</p>
+                <div className="bg-black p-4 rounded mt-4">
+                  <p className="text-sm text-yellow-400 mb-2">
+                    <strong>⚠️ SAVE THIS SECRET - It cannot be recovered!</strong>
+                  </p>
+                  <p className="font-mono text-xs break-all">{secret}</p>
+                </div>
               </div>
-              <Button onClick={handleReset} className="mt-4">
-                Mint Another NFT
-              </Button>
             </div>
+
+            {/* NFC Writer - Auto-starts after successful mint */}
+            {!nfcWriteComplete && (
+              <NFCWriter
+                data={secret}
+                tokenId={tokenId}
+                autoStart={true}
+                onSuccess={() => {
+                  setNfcWriteComplete(true);
+                }}
+                onError={(error) => {
+                  console.error("NFC write error:", error);
+                  // Still allow user to continue even if NFC write fails
+                }}
+              />
+            )}
+
+            {nfcWriteComplete && (
+              <div className="text-center">
+                <Button label="Mint Another NFT" onClick={handleReset} />
+              </div>
+            )}
+
+            {/* Allow skip if NFC write is taking too long or failing */}
+            {!nfcWriteComplete && (
+              <div className="text-center">
+                <button
+                  onClick={handleReset}
+                  className="text-sm text-gray-400 hover:text-gray-200 underline"
+                >
+                  Skip NFC Writing and Mint Another NFT
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -323,13 +360,13 @@ export default function AdminPage() {
             )}
 
             {/* Submit Button */}
-            <Button
+            <button
               type="submit"
               disabled={isUploading || isMinting}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed py-3 text-lg font-semibold"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed py-3 text-lg font-semibold rounded-lg transition-colors"
             >
               {isUploading || isMinting ? "Processing..." : "Mint Encrypted NFT"}
-            </Button>
+            </button>
           </form>
         )}
 
