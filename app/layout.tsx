@@ -4,7 +4,6 @@ import "./globals.css";
 import PWARegister from "./pwa-register";
 import ThirdwebProviderWrapper from "@/components/providers/thirdweb-provider";
 import { NavigationTabs } from "@/components/navigation-tabs";
-import { PWAInstaller } from "@/components/pwa-installer";
 import { LayoutClient } from "@/components/layout/layout-client";
 
 const geistSans = Geist({
@@ -50,7 +49,6 @@ export default function RootLayout({
               </main>
             </div>
           </div>
-          <PWAInstaller />
         </ThirdwebProviderWrapper>
       </body>
     </html>
