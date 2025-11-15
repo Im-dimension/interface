@@ -7,7 +7,7 @@ export default function PWARegister() {
     if (process.env.NODE_ENV !== "production") return;
     if (!("serviceWorker" in navigator)) return;
 
-    const swUrl = "/sw.js";
+    const swUrl = "/service-worker.js";
     (async () => {
       try {
         const registration = await navigator.serviceWorker.register(swUrl, { scope: "/" });

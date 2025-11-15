@@ -1,11 +1,10 @@
-const CACHE_NAME = 'impossible-store-v1'
+const CACHE_NAME = 'impossible-store-v2'
 const urlsToCache = [
   '/',
   '/manifest.json',
-  '/icon.svg',
-  '/icon-192x192.jpg',
-  '/icon-512x512.jpg',
-  '/pink-cat-character-in-forest-setting-with-trees-an.jpg'
+  '/favicon.ico',
+  '/pink-cat-character-in-forest-setting-with-trees-an.jpg',
+  '/placeholder.svg',
 ]
 
 self.addEventListener('install', (event) => {
