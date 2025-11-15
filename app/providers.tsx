@@ -2,7 +2,6 @@
 
 import ThirdwebProviderWrapper from "@/components/providers/thirdweb-provider";
 import PWARegister from "./pwa-register";
-import MainLayout from "./main-layout";
 import { WalletProvider } from "@/providers/useWalletProvider";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
@@ -10,7 +9,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
     <ThirdwebProviderWrapper>
       <PWARegister />
       <WalletProvider>
-        <MainLayout>{children}</MainLayout>
+        {children}
       </WalletProvider>
     </ThirdwebProviderWrapper>
   );
