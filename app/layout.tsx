@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PWARegister from "./pwa-register";
+import ThirdwebProviderWrapper from "@/components/providers/thirdweb-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,8 +50,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <PWARegister />
-        {children}
+        <ThirdwebProviderWrapper>
+          <PWARegister />
+          {children}
+        </ThirdwebProviderWrapper>
       </body>
     </html>
   );
