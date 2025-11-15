@@ -20,10 +20,6 @@ export const metadata: Metadata = {
   title: "Impossible Dimension",
   description: "A Next.js app with PWA support.",
   manifest: "/manifest.json",
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-  ],
 };
 
 export default function RootLayout({
