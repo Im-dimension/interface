@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { InfoCard } from "@/components/info-card";
 import { NFTCard } from "@/components/cards/nft-card";
-// import { StorageWidget } from "@/components/contract/storage-widget";
 
 const mockNFTs = [
   {
@@ -21,10 +20,6 @@ const mockNFTs = [
 ];
 
 export default function NFTsPage() {
-  // const storageAddress = process.env.NEXT_PUBLIC_STORAGE_CONTRACT as
-  //   | string
-  //   | undefined;
-
   return (
     <>
       <div className="flex-1 overflow-y-auto space-y-4 md:space-y-6">
@@ -36,8 +31,6 @@ export default function NFTsPage() {
           />
         ))}
       </div>
-
-      {/* {storageAddress ? <StorageWidget address={storageAddress} /> : null} */}
 
       {/* Bottom Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-4 sm:gap-8">
