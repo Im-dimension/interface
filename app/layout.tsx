@@ -4,7 +4,6 @@ import "./globals.css";
 import PWARegister from "./pwa-register";
 import ThirdwebProviderWrapper from "@/components/providers/thirdweb-provider";
 import { NavigationTabs } from "@/components/navigation-tabs";
-import { LayoutClient } from "@/components/layout/layout-client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +39,6 @@ export default function RootLayout({
                 <NavigationTabs />
               </div>
               <main className="max-w-7xl mx-auto px-4 py-6 lg:py-12 flex flex-col flex-1 min-h-0 gap-4 md:gap-6 pt-16 md:pt-20">
-                <LayoutClient />
                 {children}
               </main>
             </div>
