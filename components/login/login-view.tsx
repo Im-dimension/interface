@@ -11,7 +11,7 @@ import {
 
 export function LoginView() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen bg-red-500 flex items-center justify-center px-4">
       <ConnectButton
         client={thirdwebClient}
         theme={impossibleDimensionTheme}
@@ -32,14 +32,14 @@ export function LoginView() {
           },
         }}
         connectButton={{
+          label: 'Connect Wallet',
           style: {
             borderRadius: '25px',
-            background: '#8B5CF6',
-            color: 'white',
+            background: '#f4d03f',
+            color: '#4a2a1f',
             border: 'none',
             padding: '12px 20px',
           },
-          label: 'Connect Wallet',
         }}
         switchButton={{
           style: {
