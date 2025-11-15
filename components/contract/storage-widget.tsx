@@ -20,7 +20,7 @@ const STORAGE_ABI = [
     stateMutability: "view",
     type: "function",
   },
-] as const;
+] as const; 
 
 type Props = {
   address: string;
