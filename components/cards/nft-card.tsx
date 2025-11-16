@@ -7,17 +7,27 @@ export function NFTCard({
   name,
   description,
   tokenId,
+  videoUrl,
+  onClick,
 }: {
   imageUrl: string;
   imageAlt: string;
   name?: string;
   description?: string;
   tokenId?: string;
+  videoUrl?: string;
+  onClick?: () => void;
 }) {
   const [imgSrc, setImgSrc] = useState(imageUrl || "/placeholder.svg");
+  const isVideo = !!videoUrl;
 
   return (
-    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden">
+    <div
+      className={`relative rounded-2xl sm:rounded-3xl overflow-hidden ${
+        isVideo ? "cursor-pointer hover:opacity-90 transition-opacity" : ""
+      }`}
+      onClick={isVideo ? onClick : undefined}
+    >
       <Image
         src={imgSrc}
         alt={imageAlt}
@@ -29,6 +39,22 @@ export function NFTCard({
           setImgSrc("/placeholder.svg");
         }}
       />
+
+      {/* Play button overlay for video NFTs */}
+      {isVideo && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
+          <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 sm:p-6 shadow-xl">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-12 w-12 sm:h-16 sm:w-16 text-black"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+      )}
 
       {(name || description || tokenId) && (
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 via-black/30 to-transparent p-4">

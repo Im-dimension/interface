@@ -1,15 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { useGetMyNFTs } from "@/app/hooks/useGetMyNFTs";
 import { NFTCard } from "@/components/cards/nft-card";
 import { InfoCard } from "@/components/cards/info-card";
 import { useActiveAccount } from "thirdweb/react";
-// import { mockNFTs } from "@/lib/constants";
 import { NFTDetails } from "@/components/cards/nft-details";
+import { VideoModal } from "@/components/modals/video-modal";
 
 export default function WalletPage() {
   const account = useActiveAccount();
   const { nfts, isLoading, error } = useGetMyNFTs();
+  const [selectedVideo, setSelectedVideo] = useState<{
+    url: string;
+    title: string;
+    description: string;
+  } | null>(null);
 
   console.log("=== WalletPage Render ===");
   console.log("A. Account:", account?.address);
@@ -33,12 +39,16 @@ export default function WalletPage() {
   if (isLoading) {
     console.log(">>> Rendering: Loading state");
     return (
-      <div className="flex h-full justify-center items-center">
-        <InfoCard
-          title="Loading..."
-          description="Fetching your NFTs from the blockchain"
-        />
-      </div>
+      <>
+        <div className="flex-1"></div>
+        {/* Bottom Info - positioned same as NFTDetails */}
+        <div className="flex justify-end sm:items-end gap-4 sm:gap-8">
+          <InfoCard
+            title="Loading..."
+            description="Fetching your NFTs from the blockchain"
+          />
+        </div>
+      </>
     );
   }
 
@@ -77,14 +87,31 @@ export default function WalletPage() {
     );
   }
 
+  // Filter NFTs with tokenId >= 17
+  const filteredNfts = nfts.filter((nft) => parseInt(nft.tokenId) >= 17);
+
+  if (filteredNfts.length === 0) {
+    console.log(">>> Rendering: No NFTs found (after filtering)");
+    return (
+      <div className="flex h-full justify-center items-center">
+        <InfoCard
+          title="No NFTs Yet"
+          description="You don't own any NFTs yet. Visit the store to collect some!"
+        />
+      </div>
+    );
+  }
+
   console.log(">>> Rendering: NFT display");
-  console.log("Number of NFTs to display:", nfts.length);
+  console.log("Number of NFTs to display:", filteredNfts.length);
 
   return (
     <>
       <div className="flex-1 overflow-y-auto space-y-4 md:space-y-6">
-        {nfts.map((nft, index) => {
+        {filteredNfts.map((nft, index) => {
           console.log(`Rendering NFT ${index}:`, nft);
+          const videoUrl = nft.animation_url || nft.video;
+          
           return (
             <div key={nft.tokenId}>
               <NFTCard
@@ -93,6 +120,17 @@ export default function WalletPage() {
                 name={nft.name}
                 description={nft.description}
                 tokenId={nft.tokenId}
+                videoUrl={videoUrl}
+                onClick={
+                  videoUrl
+                    ? () =>
+                        setSelectedVideo({
+                          url: videoUrl,
+                          title: nft.name,
+                          description: nft.description,
+                        })
+                    : undefined
+                }
               />
             </div>
           );
@@ -102,10 +140,19 @@ export default function WalletPage() {
       {/* Bottom Info */}
       <div className="flex justify-end sm:items-end gap-4 sm:gap-8">
         <NFTDetails
-          name={`${nfts.length} NFT${nfts.length === 1 ? "" : "s"}`}
+          name={`${filteredNfts.length} NFT${filteredNfts.length === 1 ? "" : "s"}`}
           description="Your Impossible Dimension collection"
         />
       </div>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={!!selectedVideo}
+        onClose={() => setSelectedVideo(null)}
+        videoUrl={selectedVideo?.url || ""}
+        title={selectedVideo?.title}
+        description={selectedVideo?.description}
+      />
     </>
   );
 }
