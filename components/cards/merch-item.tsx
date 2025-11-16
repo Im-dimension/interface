@@ -16,7 +16,7 @@ export function MerchItem({ name, price, thumbnail, onBuy }: MerchItemProps) {
   return (
     <div className="flex items-center gap-4 p-3 sm:p-4 bg-[#f4d4a0] rounded-2xl border-4 border-dashed border-[#d4a520]/40 shadow-lg hover:shadow-xl transition-shadow">
       {/* Thumbnail */}
-      <div className="w-20 h-20 md:w-24 md:h-24 flex shrink-0 rounded-xl overflow-hidden border-2 border-purple-600/20 bg-[#f3a8c7]">
+      <div className="w-20 h-20 md:w-24 md:h-24 flex shrink-0 rounded-xl overflow-hidden border-2 border-purple-600/20 bg-white">
         <Image
           src={imgSrc}
           alt={name}
