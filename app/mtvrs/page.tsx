@@ -1,6 +1,6 @@
 "use client";
 
-import { InfoCard } from "@/components/info-card";
+import { InfoCard } from "@/components/cards/info-card";
 
 export default function MTVRsPage() {
   return (

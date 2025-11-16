@@ -1,6 +1,6 @@
 "use client";
 
-import { InfoCard } from "@/components/info-card";
+import { InfoCard } from "@/components/cards/info-card";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 

@@ -10,7 +10,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const currentRoute = usePathname();
-  const isNFTsPage = currentRoute === "/";
+  const isNFTsPage = currentRoute === "/wallet";
 
   return (
     <div className="min-h-screen p-4 md:p-8 lg:p-12 relative">
@@ -23,7 +23,7 @@ export default function MainLayout({
         </main>
       </div>
       {isNFTsPage && (
-        <div className="absolute bottom-20 left-4">
+        <div className="absolute bottom-8 left-6">
           <ScanButton />
         </div>
       )}

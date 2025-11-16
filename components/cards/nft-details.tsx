@@ -1,0 +1,17 @@
+interface NFTDetailsProps {
+  name: string;
+  description: string;
+}
+
+export function NFTDetails({ name, description }: NFTDetailsProps) {
+  return (
+    <div className="bg-[#f4d4a0] rounded-2xl p-2 border-4 border-dashed border-[#d4a520]/40 shadow-lg w-1/2">
+      <h3 className="font-bold text-[#4a2a75] text-xl md:text-2xl mb-2">
+        {name}
+      </h3>
+      <p className="text-[#4a2a75] text-sm md:text-base leading-relaxed font-semibold">
+        {description}
+      </p>
+    </div>
+  );
+}
