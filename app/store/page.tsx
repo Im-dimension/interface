@@ -5,27 +5,27 @@ import { MerchItem } from "@/components/cards/merch-item";
 const merchItems = [
   {
     id: 1,
-    name: "Sub0 T-Shirt",
+    name: "Chiri Fungi Night",
     price: "$29.99",
-    thumbnail: "/placeholder-tshirt.jpg",
+    thumbnail: "/chiri-fungi-night.png",
   },
   {
     id: 2,
-    name: "Sub0 Hoodie",
+    name: "Chiri Intersuit",
     price: "$49.99",
-    thumbnail: "/placeholder-hoodie.jpg",
+    thumbnail: "/chiri-intersuit.png",
   },
   {
     id: 3,
-    name: "Sub0 Cap",
+    name: "Chiri Pantuflas",
     price: "$19.99",
-    thumbnail: "/placeholder-cap.jpg",
+    thumbnail: "/Chiri-pantuflas.png",
   },
   {
     id: 4,
-    name: "Sub0 Sticker Pack",
+    name: "Chiri Pizza Mate Xoxo",
     price: "$9.99",
-    thumbnail: "/placeholder-stickers.jpg",
+    thumbnail: "/chiri-pizza-mate-xoxo.png",
   },
 ];
 
