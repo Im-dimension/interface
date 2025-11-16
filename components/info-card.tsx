@@ -5,7 +5,7 @@ interface InfoCardProps {
 
 export function InfoCard({ title, description }: InfoCardProps) {
   return (
-    <div className="bg-[#f4d4a0] rounded-2xl p-6 md:p-8 border-4 border-dashed border-[#d4a520]/40 shadow-lg w-1/2">
+    <div className="bg-[#f4d4a0] rounded-2xl p-2 border-4 border-dashed border-[#d4a520]/40 shadow-lg w-1/2">
       <h3 className="font-bold text-[#4a2a75] text-xl md:text-2xl mb-2">
         {title}
       </h3>
