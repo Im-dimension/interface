@@ -1,7 +1,7 @@
 "use client";
 
 import { NavigationTabs } from "@/components/navigation-tabs";
-import { Button } from "@/components/ui/button";
+import { ScanButton } from "@/components/nfc/scan-button";
 import { usePathname } from "next/navigation";
 
 export default function MainLayout({
@@ -23,11 +23,9 @@ export default function MainLayout({
         </main>
       </div>
       {isNFTsPage && (
-        <Button
-          className="absolute bottom-20 left-4 bg-white text-black"
-          label="SCAN"
-          bgImage="/btn-scan.png"
-        />
+        <div className="absolute bottom-20 left-4">
+          <ScanButton />
+        </div>
       )}
     </div>
   );
