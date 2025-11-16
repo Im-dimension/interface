@@ -1,6 +1,7 @@
 "use client";
 
 import { MerchItem } from "@/components/cards/merch-item";
+import { NFTDetails } from "@/components/cards/nft-details";
 
 const merchItems = [
   {
@@ -36,13 +37,27 @@ export default function StorePage() {
   };
 
   return (
-    <div className="w-full h-full overflow-y-auto p-4 md:p-6">
-      <h1 className="text-yellow-500 text-2xl md:text-3xl font-bold mb-6">Merchandise Store</h1>
-      <div className="space-y-4">
-        {merchItems.map((item) => (
-          <MerchItem key={item.id} {...item} onBuy={handleBuy} />
-        ))}
+    <>
+      <div className="w-full h-full overflow-y-auto p-4 md:p-6">
+        <h1 className="text-yellow-500 text-2xl md:text-3xl font-bold mb-6">
+          Merchandise Store
+        </h1>
+        <div className="space-y-4">
+          {merchItems.map((item) => (
+            <MerchItem key={item.id} {...item} onBuy={handleBuy} />
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* Bottom Info */}
+      <div className="flex justify-end sm:items-end gap-4 sm:gap-8">
+        <NFTDetails
+          name={`${merchItems.length} Item${
+            merchItems.length === 1 ? "" : "s"
+          }`}
+          description="Your Impossible Dimension merchandise"
+        />
+      </div>
+    </>
   );
 }
