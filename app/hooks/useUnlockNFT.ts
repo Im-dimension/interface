@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { prepareContractCall, sendTransaction } from "thirdweb";
-import { useActiveAccount } from "thirdweb/react";
+import { useActiveAccount, useSwitchActiveWalletChain } from "thirdweb/react";
 import { getContract } from "thirdweb";
 import { thirdwebClient, polkadotHubTestnet } from "@/lib/thirdweb";
 import { 
@@ -20,6 +20,7 @@ export interface UnlockState {
 
 export function useUnlockNFT() {
   const account = useActiveAccount();
+  const switchChain = useSwitchActiveWalletChain();
   const [state, setState] = useState<UnlockState>({
     isUnlocking: false,
     error: null,
@@ -42,6 +43,15 @@ export function useUnlockNFT() {
       }));
 
       console.log("Unlocking NFT:", { tokenId, secret });
+
+      // Switch to the correct chain first
+      try {
+        await switchChain(polkadotHubTestnet);
+        console.log("Switched to Polkadot Hub Testnet");
+      } catch (switchError) {
+        console.error("Chain switch error:", switchError);
+        throw new Error("Please switch your wallet to Polkadot Hub Testnet (Chain ID: 420420422)");
+      }
 
       // Convert secret string to bytes (hex format)
       const secretBytes = new TextEncoder().encode(secret);

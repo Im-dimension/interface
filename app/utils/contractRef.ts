@@ -1034,5 +1034,5 @@ export const ImpossibleDimensionMarketABI=[
 		"stateMutability": "view",
 		"type": "function"
 	}
-]
+] as const;
 export const ImpossibleDimensionMarketAddress="0x1967082ED02261e3d35946Af32049fdB79b49E0E"

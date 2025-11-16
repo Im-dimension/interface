@@ -45,6 +45,10 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
   };
 
   const nfcDataString = JSON.stringify(nfcDataObject);
+  
+  // Generate the URL that will be written to NFC tag
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const nfcUrl = `${baseUrl}/?nfc=${encodeURIComponent(nfcDataString)}`;
 
   const handleCopy = async () => {
     try {
@@ -56,12 +60,22 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
     }
   };
 
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(nfcUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   const handleWrite = async () => {
     // Check for Web NFC support
     if (!webNfcSupported()) {
       const error = isIOS() 
-        ? "NFC writing requires iOS 13+ and Safari. Please ensure NFC is enabled in Settings > Control Center."
-        : "Web NFC is not supported on this device/browser. Try Chrome on Android or Safari on iOS 13+.";
+        ? "NFC writing is not available in iOS browsers. Please use an Android device with Chrome to write NFC tags, or use the QR code option below."
+        : "Web NFC is not supported on this device/browser. Try Chrome on Android.";
       setErrorMessage(error);
       setWriteStatus("error");
       onError?.(error);
@@ -78,12 +92,16 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
 
       const reader: NDEFReaderLite = new ctor();
 
-      // Prepare the NFC message with both token ID and secret in JSON format
+      // Create URL with encoded NFT data - optimized for iOS
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      const urlWithData = `${baseUrl}/?nfc=${encodeURIComponent(nfcDataString)}`;
+
+      // For iPhone: Write ONLY the URL record (iPhone reads URL records best)
       const message: NDEFMessageLite = {
         records: [
           {
-            recordType: "text",
-            data: nfcDataString,
+            recordType: "url",
+            data: urlWithData,
           },
         ],
       };
@@ -91,7 +109,7 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
       // Write to NFC tag
       await reader.write(message);
 
-      console.log("[WebNFC] Successfully wrote to NFC tag:", nfcDataString);
+      console.log("[WebNFC] Successfully wrote to NFC tag:", { url: urlWithData });
       setWriteStatus("success");
       setIsWriting(false);
       onSuccess?.();
@@ -134,13 +152,28 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
         <div className="bg-blue-900 border border-blue-500 rounded-lg p-6">
           <h3 className="text-xl font-bold mb-2">📱 Write to NFC Tag</h3>
           <p className="text-sm text-gray-300 mb-4">
-            Write the token ID and secret key to an NFC tag for secure storage and easy access.
+            Write NFT data to an NFC tag. iPhone users can tap the tag to automatically unlock the NFT.
           </p>
           <div className="bg-black p-3 rounded mb-4">
-            <p className="text-xs text-gray-400 mb-2">Data to write:</p>
+            <p className="text-xs text-gray-400 mb-2">NFT Data:</p>
             <p className="text-xs text-gray-400 mb-1">Token ID: <span className="font-mono text-cyan-400">{tokenId}</span></p>
-            <p className="text-xs text-gray-400 mb-2">Secret: <span className="font-mono text-yellow-400">{data}</span></p>
-            <div className="mt-3 pt-2 border-t border-gray-700">
+            <p className="text-xs text-gray-400 mb-3">Secret: <span className="font-mono text-yellow-400">{data}</span></p>
+            
+            <div className="pt-3 border-t border-gray-700 mb-3">
+              <p className="text-xs text-gray-400 mb-2">📱 iPhone Compatible URL:</p>
+              <div className="flex items-start gap-2 mb-2">
+                <code className="text-xs text-gray-300 flex-1 break-all bg-gray-900 p-2 rounded">{nfcUrl}</code>
+              </div>
+              <button
+                onClick={handleCopyUrl}
+                className="w-full px-3 py-2 text-xs bg-blue-700 hover:bg-blue-600 rounded transition-colors"
+                title="Copy URL to clipboard"
+              >
+                {copied ? "✓ URL Copied! (Use for QR codes)" : "📋 Copy URL (for QR codes)"}
+              </button>
+            </div>
+            
+            <div className="pt-3 border-t border-gray-700">
               <p className="text-xs text-gray-500 mb-2">JSON Format:</p>
               <div className="flex items-start gap-2">
                 <code className="text-xs text-gray-300 flex-1 break-all">{nfcDataString}</code>
@@ -149,15 +182,18 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
                   className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors flex-shrink-0"
                   title="Copy to clipboard"
                 >
-                  {copied ? "✓ Copied!" : "📋 Copy"}
+                  {copied ? "✓" : "📋"}
                 </button>
               </div>
             </div>
           </div>
           <Button
-            label="Write to NFC Tag"
+            label="Write to NFC Tag (Requires Android)"
             onClick={handleWrite}
           />
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            💡 Copy the URL above to create a QR code for iPhone users
+          </p>
         </div>
       )}
 
@@ -225,7 +261,24 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
               <p className="text-sm text-gray-300 mb-3">{errorMessage}</p>
               
               <div className="bg-black p-3 rounded mb-3">
-                <p className="text-xs text-gray-400 mb-2">You can still copy the data:</p>
+                <p className="text-xs text-yellow-400 font-semibold mb-2">📱 Alternative for iPhone:</p>
+                <p className="text-xs text-gray-300 mb-2">Use this URL to create a QR code:</p>
+                <div className="flex items-start gap-2 mb-2">
+                  <code className="text-xs text-gray-300 flex-1 break-all bg-gray-900 p-2 rounded">{nfcUrl}</code>
+                </div>
+                <button
+                  onClick={handleCopyUrl}
+                  className="w-full px-3 py-2 text-xs bg-blue-700 hover:bg-blue-600 rounded transition-colors"
+                >
+                  {copied ? "✓ URL Copied!" : "📋 Copy URL"}
+                </button>
+                <p className="text-xs text-gray-400 mt-2">
+                  Generate a QR code with this URL. When iPhone users scan it, the NFT will automatically unlock!
+                </p>
+              </div>
+              
+              <div className="bg-black p-3 rounded mb-3">
+                <p className="text-xs text-gray-400 mb-2">Manual data (if needed):</p>
                 <p className="text-xs text-gray-400 mb-1">Token ID: <span className="font-mono text-cyan-400">{tokenId}</span></p>
                 <p className="text-xs text-gray-400 mb-3">Secret: <span className="font-mono text-yellow-400">{data}</span></p>
                 <div className="pt-2 border-t border-gray-700">
