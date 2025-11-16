@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { prepareContractCall, sendTransaction } from "thirdweb";
-import { useActiveAccount } from "thirdweb/react";
+import { useActiveAccount, useSwitchActiveWalletChain } from "thirdweb/react";
 import { PinataSDK } from "pinata";
 import { keccak256, toBytes } from "thirdweb/utils";
 import { 
@@ -58,6 +58,7 @@ export interface MintState {
 
 export function useMintEncryptedNFT() {
   const account = useActiveAccount();
+  const switchChain = useSwitchActiveWalletChain();
   const [state, setState] = useState<MintState>({
     isUploading: false,
     isMinting: false,
@@ -243,6 +244,17 @@ export function useMintEncryptedNFT() {
       console.log("Encrypted URI:", encryptedHex);
       console.log("Secret:", secretString);
       console.log("Secret Hash:", secretHash);
+
+      setState(prev => ({ ...prev, uploadProgress: "Switching to correct network..." }));
+
+      // Switch to the correct chain first
+      try {
+        await switchChain(polkadotHubTestnet);
+        console.log("Switched to Polkadot Hub Testnet");
+      } catch (switchError) {
+        console.error("Chain switch error:", switchError);
+        throw new Error("Please switch your wallet to Polkadot Hub Testnet (Chain ID: 420420422)");
+      }
 
       setState(prev => ({ ...prev, uploadProgress: "Minting NFT..." }));
 
