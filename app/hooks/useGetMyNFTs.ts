@@ -17,6 +17,8 @@ interface NFTMetadata {
   description: string;
   image: string;
   tokenURI: string;
+  animation_url?: string;
+  video?: string;
 }
 
 export function useGetMyNFTs() {
@@ -87,20 +89,55 @@ export function useGetMyNFTs() {
           });
           try {
             // If tokenURI is an IPFS URL, fetch the metadata
-            let metadata = {
+            let metadata: {
+              name: string;
+              description: string;
+              image: string;
+              animation_url?: string;
+              video?: string;
+            } = {
               name: `NFT #${token.tokenId.toString()}`,
               description: "Impossible Dimension NFT",
               image: "",
             };
 
             if (token.tokenURI && token.tokenURI.startsWith("ipfs://")) {
-              const ipfsUrl = token.tokenURI.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
-              console.log(`11.${index}. Fetching IPFS metadata from:`, ipfsUrl);
-              const response = await fetch(ipfsUrl);
-              console.log(`12.${index}. IPFS fetch response:`, response.ok, response.status);
-              if (response.ok) {
-                metadata = await response.json();
-                console.log(`13.${index}. IPFS metadata:`, metadata);
+              // Try multiple IPFS gateways for better reliability
+              const gateways = [
+                "https://gateway.pinata.cloud/ipfs/",
+                "https://ipfs.io/ipfs/",
+                "https://cloudflare-ipfs.com/ipfs/",
+              ];
+              
+              const cid = token.tokenURI.replace("ipfs://", "");
+              console.log(`11.${index}. Fetching IPFS metadata for CID:`, cid);
+              
+              let fetchSuccess = false;
+              for (const gateway of gateways) {
+                try {
+                  const ipfsUrl = gateway + cid;
+                  console.log(`11.${index}. Trying gateway:`, ipfsUrl);
+                  const response = await fetch(ipfsUrl, {
+                    method: 'GET',
+                    headers: {
+                      'Accept': 'application/json',
+                    },
+                  });
+                  console.log(`12.${index}. IPFS fetch response:`, response.ok, response.status);
+                  if (response.ok) {
+                    metadata = await response.json();
+                    console.log(`13.${index}. IPFS metadata:`, metadata);
+                    fetchSuccess = true;
+                    break;
+                  }
+                } catch (gatewayErr) {
+                  console.log(`Gateway ${gateway} failed, trying next...`);
+                  continue;
+                }
+              }
+              
+              if (!fetchSuccess) {
+                console.log(`11.${index}. All IPFS gateways failed`);
               }
             } else if (token.tokenURI && token.tokenURI.startsWith("http")) {
               console.log(`11.${index}. Fetching HTTP metadata from:`, token.tokenURI);
@@ -114,12 +151,23 @@ export function useGetMyNFTs() {
               console.log(`11.${index}. No valid tokenURI or unsupported protocol:`, token.tokenURI);
             }
 
+            // Helper to convert IPFS URLs to HTTP gateway URLs
+            const convertIpfsUrl = (url: string | undefined): string => {
+              if (!url) return "";
+              if (url.startsWith("ipfs://")) {
+                return url.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
+              }
+              return url;
+            };
+
             const nftData = {
               tokenId: token.tokenId.toString(),
               name: metadata.name,
               description: metadata.description,
-              image: metadata.image?.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/") || "",
+              image: convertIpfsUrl(metadata.image),
               tokenURI: token.tokenURI,
+              animation_url: convertIpfsUrl(metadata.animation_url),
+              video: convertIpfsUrl(metadata.video),
             };
             console.log(`14.${index}. Final NFT data:`, nftData);
             return nftData;

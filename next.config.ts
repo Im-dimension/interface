@@ -7,6 +7,21 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '500mb',
     },
   },
+  // Configure external image domains
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'gateway.pinata.cloud',
+        pathname: '/ipfs/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.mypinata.cloud',
+        pathname: '/ipfs/**',
+      },
+    ],
+  },
   webpack: (config, { isServer }) => {
     // Exclude test files and dev dependencies from bundling
     config.module = config.module || {};
