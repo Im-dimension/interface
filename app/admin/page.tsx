@@ -35,6 +35,7 @@ export default function AdminPage() {
     category: "upper_body" as (typeof CATEGORY_OPTIONS)[number],
     tags: "",
     price: "0",
+    validityDays: "30", // Default to 30 days
   });
 
   const [files, setFiles] = useState<{
@@ -120,7 +121,8 @@ export default function AdminPage() {
         files.thumbnail,
         files.image,
         files.mainFile,
-        formData.price
+        formData.price,
+        parseInt(formData.validityDays) || 30 // Parse validity days, default to 30
       );
     } catch (error) {
       console.error("Mint error:", error);
@@ -135,6 +137,7 @@ export default function AdminPage() {
       category: "upper_body",
       tags: "",
       price: "0",
+      validityDays: "30",
     });
     setFiles({
       thumbnail: null,
@@ -323,19 +326,39 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Price */}
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[#4a2a1f]">
-              Price (in Wei, 0 for free)
-            </label>
-            <input
-              type="text"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              className="w-full bg-white/80 border border-purple-600/20 text-[#4a2a1f] placeholder:text-[#4a2a1f]/50 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d4a520]/40"
-              placeholder="0"
-            />
+          {/* Price and Validity Days */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-[#4a2a1f]">
+                Price (in Wei, 0 for free)
+              </label>
+              <input
+                type="text"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                className="w-full bg-white/80 border border-purple-600/20 text-[#4a2a1f] placeholder:text-[#4a2a1f]/50 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d4a520]/40"
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-[#4a2a1f]">
+                Validity Days <span className="text-red-500">*</span>
+                <span className="text-xs text-[#4a2a1f]/60 ml-2">(Data retention on Arkiv)</span>
+              </label>
+              <input
+                type="number"
+                name="validityDays"
+                value={formData.validityDays}
+                onChange={handleInputChange}
+                min="1"
+                max="365"
+                required
+                className="w-full bg-white/80 border border-purple-600/20 text-[#4a2a1f] placeholder:text-[#4a2a1f]/50 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d4a520]/40"
+                placeholder="30"
+              />
+            </div>
           </div>
 
           {/* File Uploads */}

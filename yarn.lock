@@ -19,6 +19,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@arkiv-network/sdk@npm:0.4.4":
+  version: 0.4.4
+  resolution: "@arkiv-network/sdk@npm:0.4.4"
+  dependencies:
+    brotli-wasm: "npm:^3.0.1"
+    debug: "npm:^4.3.7"
+    viem: "npm:^2.38.2"
+  peerDependencies:
+    typescript: ^5.0.0
+  peerDependenciesMeta:
+    typescript:
+      optional: false
+  checksum: 9edf9853c12e2c6eee038fbcffba26cd7f2ad2a51e9a37818e213c723f92931b327149cdb9bbde2ff796ddbfc8e94da88bb73cf3093a0e309d341bf46e3f3556
+  languageName: node
+  linkType: hard
+
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.27.1":
   version: 7.27.1
   resolution: "@babel/code-frame@npm:7.27.1"
@@ -5043,6 +5059,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"brotli-wasm@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "brotli-wasm@npm:3.0.1"
+  checksum: b458b9fe7c31a5e8255133bd26a258f79fb1b816a8d609b45a662726476315e63c539bcb7d5b8bd542cc9a7d2c91fcd4ce27154d19c33d1932f5b1618e09f23b
+  languageName: node
+  linkType: hard
+
 "browserslist@npm:^4.24.0":
   version: 4.28.0
   resolution: "browserslist@npm:4.28.0"
@@ -5493,7 +5516,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:^4.4.0":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:^4.3.7, debug@npm:^4.4.0":
   version: 4.4.3
   resolution: "debug@npm:4.4.3"
   dependencies:
@@ -7030,6 +7053,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "impossible-dimenssion@workspace:."
   dependencies:
+    "@arkiv-network/sdk": "npm:0.4.4"
     "@tailwindcss/postcss": "npm:^4"
     "@types/node": "npm:^20"
     "@types/react": "npm:^19"
@@ -10938,7 +10962,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:>=2.29.0, viem@npm:^2.1.1, viem@npm:^2.21.26, viem@npm:^2.27.2, viem@npm:^2.31.7":
+"viem@npm:>=2.29.0, viem@npm:^2.1.1, viem@npm:^2.21.26, viem@npm:^2.27.2, viem@npm:^2.31.7, viem@npm:^2.38.2":
   version: 2.39.0
   resolution: "viem@npm:2.39.0"
   dependencies:

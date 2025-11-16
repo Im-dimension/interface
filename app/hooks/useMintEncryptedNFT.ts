@@ -10,6 +10,10 @@ import {
   encryptString, 
   bytesToHex 
 } from "@/app/utils/encryption";
+import {
+  storeMetadataOnArkiv,
+  entityKeyToURI,
+} from "@/app/utils/arkiv";
 
 /**
  * Generate a human-readable secret string
@@ -138,7 +142,8 @@ export function useMintEncryptedNFT() {
     thumbnailFile: File,
     imageFile: File,
     mainFile: File,
-    price: string = "0"
+    price: string = "0",
+    validityDays: number = 30
   ) => {
     if (!account) {
       setState(prev => ({ ...prev, error: "Please connect your wallet first" }));
@@ -206,20 +211,28 @@ export function useMintEncryptedNFT() {
         }
       };
 
-      setState(prev => ({ ...prev, uploadProgress: "Uploading metadata to IPFS..." }));
+      setState(prev => ({ ...prev, uploadProgress: "Storing metadata on Arkiv..." }));
 
-      // Upload the complete metadata JSON to IPFS
-      const metadataBlob = new Blob([JSON.stringify(completeMetadata, null, 2)], { 
-        type: 'application/json' 
-      });
-      const metadataFile = new File([metadataBlob], 'metadata.json', { 
-        type: 'application/json' 
-      });
-      const metadataCID = await uploadFileToPinata(metadataFile);
+      // Get the private key from environment variable for Arkiv transactions
+      const arkivPrivateKey = process.env.NEXT_PUBLIC_ARKIV_PRIVATE_KEY;
+      if (!arkivPrivateKey) {
+        throw new Error("NEXT_PUBLIC_ARKIV_PRIVATE_KEY environment variable not set");
+      }
+
+      // Store the complete metadata on Arkiv
+      const { entityKey, txHash: arkivTxHash } = await storeMetadataOnArkiv(
+        completeMetadata,
+        validityDays,
+        arkivPrivateKey
+      );
       
-      // Create the standard IPFS URI
-      const tokenURI = `ipfs://${metadataCID}`;
-      console.log("Metadata uploaded to IPFS:", tokenURI);
+      // Create the Arkiv URI format
+      const tokenURI = entityKeyToURI(entityKey);
+      console.log("Metadata stored on Arkiv:");
+      console.log("  Entity Key:", entityKey);
+      console.log("  Token URI:", tokenURI);
+      console.log("  Arkiv Tx Hash:", arkivTxHash);
+      console.log("  Validity:", validityDays, "days");
 
       setState(prev => ({ 
         ...prev, 

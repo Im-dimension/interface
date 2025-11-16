@@ -5,6 +5,11 @@ import { useActiveAccount, useReadContract } from "thirdweb/react";
 import { getContract } from "thirdweb";
 import { thirdwebClient, polkadotHubTestnet } from "@/lib/thirdweb";
 import { ImpossibleDimensionMarketAddress, ImpossibleDimensionMarketABI } from "@/app/utils/contractRef";
+import { 
+  getMetadataFromArkiv, 
+  uriToEntityKey, 
+  isArkivURI 
+} from "@/app/utils/arkiv";
 
 interface TokenInfo {
   tokenId: bigint;
@@ -88,7 +93,7 @@ export function useGetMyNFTs() {
             tokenURI: token.tokenURI,
           });
           try {
-            // If tokenURI is an IPFS URL, fetch the metadata
+            // Default metadata
             let metadata: {
               name: string;
               description: string;
@@ -101,7 +106,28 @@ export function useGetMyNFTs() {
               image: "",
             };
 
-            if (token.tokenURI && token.tokenURI.startsWith("ipfs://")) {
+            // Check if tokenURI is an Arkiv URI
+            if (token.tokenURI && isArkivURI(token.tokenURI)) {
+              console.log(`11.${index}. Detected Arkiv URI:`, token.tokenURI);
+              const entityKey = uriToEntityKey(token.tokenURI);
+              console.log(`11.${index}. Extracting entity key:`, entityKey);
+              
+              try {
+                const arkivData = await getMetadataFromArkiv(entityKey);
+                console.log(`12.${index}. Arkiv metadata:`, arkivData);
+                // Update metadata with Arkiv data
+                metadata = {
+                  name: arkivData.name || metadata.name,
+                  description: arkivData.description || metadata.description,
+                  image: arkivData.image || metadata.image,
+                  animation_url: arkivData.animation_url,
+                  video: arkivData.video,
+                };
+              } catch (arkivErr) {
+                console.error(`11.${index}. Failed to fetch from Arkiv:`, arkivErr);
+                // Keep default metadata if Arkiv fetch fails
+              }
+            } else if (token.tokenURI && token.tokenURI.startsWith("ipfs://")) {
               // Try multiple IPFS gateways for better reliability
               const gateways = [
                 "https://gateway.pinata.cloud/ipfs/",
