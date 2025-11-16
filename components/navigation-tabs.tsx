@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 export function NavigationTabs() {
   const pathname = usePathname();
   const tabs = [
-    { label: "NFTs", href: "/" },
+    { label: "WALLET", href: "/wallet" },
     { label: "STORE", href: "/store" },
     { label: "MTVRs", href: "/mtvrs" },
   ];
