@@ -7,25 +7,25 @@ const merchItems = [
     id: 1,
     name: "Sub0 T-Shirt",
     price: "$29.99",
-    thumbnail: "/placeholder-tshirt.jpg",
+    thumbnail: "/chiri-fungi-night.png",
   },
   {
     id: 2,
     name: "Sub0 Hoodie",
     price: "$49.99",
-    thumbnail: "/placeholder-hoodie.jpg",
+    thumbnail: "/chiri-intersuit.png",
   },
   {
     id: 3,
     name: "Sub0 Cap",
     price: "$19.99",
-    thumbnail: "/placeholder-cap.jpg",
+    thumbnail: "/Chiri-pantuflas.png",
   },
   {
     id: 4,
     name: "Sub0 Sticker Pack",
     price: "$9.99",
-    thumbnail: "/placeholder-stickers.jpg",
+    thumbnail: "/chiri-pizza-mate-xoxo.png",
   },
 ];
 
