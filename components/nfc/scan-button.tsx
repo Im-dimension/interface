@@ -116,32 +116,49 @@ export function ScanButton() {
 
   // For iOS: Listen to page visibility and URL changes for NFC data
   useEffect(() => {
+    console.log("[NFC Auto-Unlock] useEffect triggered");
+    
     const handleURLChange = async () => {
+      console.log("[NFC Auto-Unlock] Checking URL for NFC data");
       const urlParams = new URLSearchParams(window.location.search);
       const nfcData = urlParams.get('nfc');
       
+      console.log("[NFC Auto-Unlock] URL params:", window.location.search);
+      console.log("[NFC Auto-Unlock] NFC data:", nfcData);
+      
       if (nfcData) {
         try {
+          console.log("[NFC Auto-Unlock] Parsing NFC data...");
           const parsed = JSON.parse(decodeURIComponent(nfcData));
+          console.log("[NFC Auto-Unlock] Parsed data:", parsed);
+          
           if (parsed.tokenId && parsed.secret) {
+            console.log("[NFC Auto-Unlock] Valid data found, cleaning URL and starting auto-claim");
             // Clean URL first
             window.history.replaceState({}, '', window.location.pathname);
             
             // Automatically claim NFT
             await handleNFCDataAutomatically(parsed.tokenId, parsed.secret);
+          } else {
+            console.error("[NFC Auto-Unlock] Missing tokenId or secret in parsed data");
           }
         } catch (e) {
-          console.error("Failed to parse NFC data from URL:", e);
+          console.error("[NFC Auto-Unlock] Failed to parse NFC data from URL:", e);
           alert("Invalid NFT data in URL");
         }
+      } else {
+        console.log("[NFC Auto-Unlock] No NFC data in URL");
       }
     };
 
     handleURLChange();
     window.addEventListener('popstate', handleURLChange);
     
-    return () => window.removeEventListener('popstate', handleURLChange);
-  }, [unlockAndClaim, handleNFCDataAutomatically]);
+    return () => {
+      console.log("[NFC Auto-Unlock] Cleaning up event listener");
+      window.removeEventListener('popstate', handleURLChange);
+    };
+  }, [handleNFCDataAutomatically]);
 
   const closeModal = () => {
     setModalState({
