@@ -18,6 +18,7 @@ export function LoginView() {
         wallets={walletConfigs}
         chains={supportedChains}
         chain={polkadotHubTestnet}
+        // hiddenWallets={["inApp"]}
         connectModal={{
           showThirdwebBranding: false,
           title: 'Connect your wallet',

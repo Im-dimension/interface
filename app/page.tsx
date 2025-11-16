@@ -33,8 +33,7 @@ export default function NFTsPage() {
       </div>
 
       {/* Bottom Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-4 sm:gap-8">
-        <Button label="SCAN" />
+      <div className="flex justify-end sm:items-end gap-4 sm:gap-8">
         <InfoCard
           title="INFO"
           description="Find all your favorite Chiri merch at the Impossible Store"
