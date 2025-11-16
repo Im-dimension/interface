@@ -71,36 +71,7 @@ export function ScanButton() {
 
   const isIOS = typeof window !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // For iOS: Listen to page visibility and URL changes for NFC data
-  useEffect(() => {
-    const handleURLChange = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const nfcData = urlParams.get('nfc');
-      
-      if (nfcData) {
-        try {
-          const parsed = JSON.parse(decodeURIComponent(nfcData));
-          if (parsed.tokenId && parsed.secret) {
-            // Clean URL first
-            window.history.replaceState({}, '', window.location.pathname);
-            
-            // Automatically claim NFT
-            await handleNFCDataAutomatically(parsed.tokenId, parsed.secret);
-          }
-        } catch (e) {
-          console.error("Failed to parse NFC data from URL:", e);
-          alert("Invalid NFT data in URL");
-        }
-      }
-    };
-
-    handleURLChange();
-    window.addEventListener('popstate', handleURLChange);
-    
-    return () => window.removeEventListener('popstate', handleURLChange);
-  }, []);
-
-  const handleNFCDataAutomatically = async (tokenId: string, secret: string) => {
+  const handleNFCDataAutomatically = useCallback(async (tokenId: string, secret: string) => {
     try {
       console.log("Auto-claiming NFT from NFC redirect:", { tokenId, secret });
       
@@ -141,7 +112,36 @@ export function ScanButton() {
         errorMessage: unlockError instanceof Error ? unlockError.message : String(unlockError),
       });
     }
-  };
+  }, [unlockAndClaim]);
+
+  // For iOS: Listen to page visibility and URL changes for NFC data
+  useEffect(() => {
+    const handleURLChange = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const nfcData = urlParams.get('nfc');
+      
+      if (nfcData) {
+        try {
+          const parsed = JSON.parse(decodeURIComponent(nfcData));
+          if (parsed.tokenId && parsed.secret) {
+            // Clean URL first
+            window.history.replaceState({}, '', window.location.pathname);
+            
+            // Automatically claim NFT
+            await handleNFCDataAutomatically(parsed.tokenId, parsed.secret);
+          }
+        } catch (e) {
+          console.error("Failed to parse NFC data from URL:", e);
+          alert("Invalid NFT data in URL");
+        }
+      }
+    };
+
+    handleURLChange();
+    window.addEventListener('popstate', handleURLChange);
+    
+    return () => window.removeEventListener('popstate', handleURLChange);
+  }, [unlockAndClaim, handleNFCDataAutomatically]);
 
   const closeModal = () => {
     setModalState({
