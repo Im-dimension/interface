@@ -3,6 +3,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useUnlockNFT } from "@/app/hooks/useUnlockNFT";
+import { ClaimModal } from "./claim-modal";
 
 type NDEFRecordLite = {
   recordType: string;
@@ -56,6 +57,16 @@ export function ScanButton() {
   const [showManualInput, setShowManualInput] = useState(false);
   const [manualTokenId, setManualTokenId] = useState("");
   const [manualSecret, setManualSecret] = useState("");
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    tokenId: string;
+    status: "detecting" | "processing" | "success" | "error";
+    errorMessage?: string;
+  }>({
+    isOpen: false,
+    tokenId: "",
+    status: "detecting",
+  });
   const { unlockAndClaim, isUnlocking, error, success } = useUnlockNFT();
 
   const isIOS = typeof window !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -93,17 +104,51 @@ export function ScanButton() {
     try {
       console.log("Auto-claiming NFT from NFC redirect:", { tokenId, secret });
       
-      // Show loading state
-      alert(`📱 NFC Detected!\n\nToken ID: ${tokenId}\n\nProcessing claim...`);
+      // Show detecting modal
+      setModalState({
+        isOpen: true,
+        tokenId,
+        status: "detecting",
+      });
+
+      // Wait a moment for the modal to show
+      await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Automatically call unlockAndClaim
+      // Show processing modal
+      setModalState({
+        isOpen: true,
+        tokenId,
+        status: "processing",
+      });
+      
+      // Call unlockAndClaim
       await unlockAndClaim(tokenId, secret);
       
-      alert(`✅ Success!\n\nNFT #${tokenId} has been unlocked and claimed to your wallet!`);
+      // Show success modal
+      setModalState({
+        isOpen: true,
+        tokenId,
+        status: "success",
+      });
     } catch (unlockError) {
       console.error("Auto-claim error:", unlockError);
-      alert(`❌ Failed to claim NFT #${tokenId}\n\nError: ${unlockError instanceof Error ? unlockError.message : String(unlockError)}\n\nPlease make sure your wallet is connected.`);
+      
+      // Show error modal
+      setModalState({
+        isOpen: true,
+        tokenId,
+        status: "error",
+        errorMessage: unlockError instanceof Error ? unlockError.message : String(unlockError),
+      });
     }
+  };
+
+  const closeModal = () => {
+    setModalState({
+      isOpen: false,
+      tokenId: "",
+      status: "detecting",
+    });
   };
 
   const handleManualUnlock = async () => {
@@ -171,20 +216,40 @@ export function ScanButton() {
             if (nfcData.tokenId && nfcData.secret) {
               console.log("Parsed NFC data:", nfcData);
               
-              // Show confirmation dialog
-              const confirmed = confirm(
-                `Found NFT data:\n\nToken ID: ${nfcData.tokenId}\nSecret: ${nfcData.secret}\n\nDo you want to unlock and claim this NFT?`
-              );
+              // Show detecting modal
+              setModalState({
+                isOpen: true,
+                tokenId: nfcData.tokenId,
+                status: "detecting",
+              });
+
+              await new Promise(resolve => setTimeout(resolve, 800));
               
-              if (confirmed) {
-                try {
-                  // Call unlockAndClaim with the parsed data
-                  await unlockAndClaim(nfcData.tokenId, nfcData.secret);
-                  alert(`Successfully unlocked NFT #${nfcData.tokenId}!`);
-                } catch (unlockError) {
-                  console.error("Unlock error:", unlockError);
-                  alert(`Failed to unlock NFT: ${unlockError instanceof Error ? unlockError.message : String(unlockError)}`);
-                }
+              // Show processing modal
+              setModalState({
+                isOpen: true,
+                tokenId: nfcData.tokenId,
+                status: "processing",
+              });
+              
+              try {
+                // Call unlockAndClaim with the parsed data
+                await unlockAndClaim(nfcData.tokenId, nfcData.secret);
+                
+                // Show success modal
+                setModalState({
+                  isOpen: true,
+                  tokenId: nfcData.tokenId,
+                  status: "success",
+                });
+              } catch (unlockError) {
+                console.error("Unlock error:", unlockError);
+                setModalState({
+                  isOpen: true,
+                  tokenId: nfcData.tokenId,
+                  status: "error",
+                  errorMessage: unlockError instanceof Error ? unlockError.message : String(unlockError),
+                });
               }
             } else {
               alert(`Invalid NFC data format. Expected: {"tokenId":"...", "secret":"..."}\nGot: ${texts[0]}`);
@@ -284,6 +349,15 @@ export function ScanButton() {
           </p>
         </div>
       )}
+
+      {/* Custom Claim Modal */}
+      <ClaimModal
+        isOpen={modalState.isOpen}
+        tokenId={modalState.tokenId}
+        status={modalState.status}
+        errorMessage={modalState.errorMessage}
+        onClose={closeModal}
+      />
     </div>
   );
 }
