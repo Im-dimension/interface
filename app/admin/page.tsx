@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMintEncryptedNFT, NFTMetadata } from "@/app/hooks/useMintEncryptedNFT";
 import { Button } from "@/components/ui/button";
+import { NFCWriter } from "@/components/nfc/nfc-writer";
 
 const RARITY_OPTIONS = [
   "common",
@@ -43,6 +44,8 @@ export default function AdminPage() {
     mainFile: null,
   });
 
+  const [nfcWriteComplete, setNfcWriteComplete] = useState(false);
+
   const {
     isUploading,
     isMinting,
@@ -65,6 +68,14 @@ export default function AdminPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: keyof typeof files) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (500MB limit)
+      const maxSize = 500 * 1024 * 1024; // 500MB
+      if (file.size > maxSize) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File is too large (${sizeMB} MB). Maximum size is 500 MB. Please compress or reduce the file size.`);
+        e.target.value = ''; // Reset the input
+        return;
+      }
       setFiles((prev) => ({ ...prev, [fileType]: file }));
     }
   };
@@ -117,6 +128,7 @@ export default function AdminPage() {
       image: null,
       mainFile: null,
     });
+    setNfcWriteComplete(false);
     reset();
   };
 
@@ -125,23 +137,56 @@ export default function AdminPage() {
       <div className="max-w-4xl mx-auto pb-12">
         <h1 className="text-4xl font-bold mb-8">Admin: Mint Encrypted NFT</h1>
 
-        {success && (
-          <div className="bg-green-900 border border-green-500 rounded-lg p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4">NFT Minted Successfully! 🎉</h2>
-            <div className="space-y-2">
-              <p>
-                <strong>Token ID:</strong> {tokenId}
-              </p>
-              <div className="bg-black p-4 rounded mt-4">
-                <p className="text-sm text-yellow-400 mb-2">
-                  <strong>⚠️ SAVE THIS SECRET - It cannot be recovered!</strong>
+        {success && secret && tokenId && (
+          <div className="space-y-6 mb-8">
+            <div className="bg-green-900 border border-green-500 rounded-lg p-6">
+              <h2 className="text-2xl font-bold mb-4">NFT Minted Successfully! 🎉</h2>
+              <div className="space-y-2">
+                <p>
+                  <strong>Token ID:</strong> {tokenId}
                 </p>
-                <p className="font-mono text-xs break-all">{secret}</p>
+                <div className="bg-black p-4 rounded mt-4">
+                  <p className="text-sm text-yellow-400 mb-2">
+                    <strong>⚠️ SAVE THIS SECRET - It cannot be recovered!</strong>
+                  </p>
+                  <p className="font-mono text-xs break-all">{secret}</p>
+                </div>
               </div>
-              <Button onClick={handleReset} className="mt-4">
-                Mint Another NFT
-              </Button>
             </div>
+
+            {/* NFC Writer - Auto-starts after successful mint */}
+            {!nfcWriteComplete && (
+              <NFCWriter
+                data={secret}
+                tokenId={tokenId}
+                autoStart={true}
+                onSuccess={() => {
+                  setNfcWriteComplete(true);
+                }}
+                onError={(error) => {
+                  console.error("NFC write error:", error);
+                  // Still allow user to continue even if NFC write fails
+                }}
+              />
+            )}
+
+            {nfcWriteComplete && (
+              <div className="text-center">
+                <Button label="Mint Another NFT" onClick={handleReset} />
+              </div>
+            )}
+
+            {/* Allow skip if NFC write is taking too long or failing */}
+            {!nfcWriteComplete && (
+              <div className="text-center">
+                <button
+                  onClick={handleReset}
+                  className="text-sm text-gray-400 hover:text-gray-200 underline"
+                >
+                  Skip NFC Writing and Mint Another NFT
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -299,6 +344,7 @@ export default function AdminPage() {
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Main File (GLB/Video/etc) <span className="text-red-500">*</span>
+                  <span className="text-xs text-gray-500 ml-2">(Max 500 MB)</span>
                 </label>
                 <input
                   type="file"
@@ -307,7 +353,9 @@ export default function AdminPage() {
                   className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
                 {files.mainFile && (
-                  <p className="text-sm text-gray-400 mt-1">{files.mainFile.name}</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    {files.mainFile.name} ({(files.mainFile.size / (1024 * 1024)).toFixed(2)} MB)
+                  </p>
                 )}
               </div>
             </div>
@@ -323,13 +371,13 @@ export default function AdminPage() {
             )}
 
             {/* Submit Button */}
-            <Button
+            <button
               type="submit"
               disabled={isUploading || isMinting}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed py-3 text-lg font-semibold"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed py-3 text-lg font-semibold rounded-lg transition-colors"
             >
               {isUploading || isMinting ? "Processing..." : "Mint Encrypted NFT"}
-            </Button>
+            </button>
           </form>
         )}
 

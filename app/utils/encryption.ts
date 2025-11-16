@@ -84,7 +84,7 @@ export function hexToBytes(hex: string): Uint8Array {
 export async function hashSecret(secret: Uint8Array): Promise<string> {
   // Using crypto.subtle.digest for demonstration
   // In production, use keccak256 from ethers.js or similar
-  const hashBuffer = await crypto.subtle.digest('SHA-256', secret);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', new Uint8Array(secret));
   const hashArray = new Uint8Array(hashBuffer);
   return bytesToHex(hashArray);
 }

@@ -70,28 +70,64 @@ export function useMintEncryptedNFT() {
 
   const uploadFileToPinata = async (file: File): Promise<string> => {
     try {
-      console.log("Starting file upload:", file.name, file.size, "bytes");
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      console.log(`Starting file upload: ${file.name} (${fileSizeMB} MB)`);
+      
+      // Check file size limit (500MB)
+      if (file.size > 500 * 1024 * 1024) {
+        throw new Error(`File ${file.name} is too large (${fileSizeMB} MB). Maximum size is 500 MB.`);
+      }
+      
+      // Get Pinata JWT from environment variable
+      const pinataJWT = process.env.NEXT_PUBLIC_PINATA_JWT;
+      if (!pinataJWT) {
+        throw new Error("Pinata JWT not configured. Please set NEXT_PUBLIC_PINATA_JWT in environment variables.");
+      }
+
+      // Upload directly to Pinata API from client
       const formData = new FormData();
       formData.append("file", file);
+      
+      // Optional: Add metadata
+      const metadata = JSON.stringify({
+        name: file.name,
+      });
+      formData.append("pinataMetadata", metadata);
 
-      const response = await fetch("/api/pinata-url", {
+      const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${pinataJWT}`,
+        },
         body: formData,
       });
 
       console.log("Upload response status:", response.status);
 
       if (!response.ok) {
-        const errorData = await response.json();
+        if (response.status === 413) {
+          throw new Error(`File ${file.name} is too large for upload. Try compressing or reducing file size.`);
+        }
+        
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          throw new Error(`Upload failed with status ${response.status}: ${response.statusText}`);
+        }
+        
         console.error("Upload failed with error data:", errorData);
-        throw new Error(`Upload failed: ${errorData.message || errorData.error || response.statusText}`);
+        throw new Error(`Upload failed: ${errorData.error?.details || errorData.error?.reason || response.statusText}`);
       }
 
       const result = await response.json();
-      console.log("Upload successful, CID:", result.cid);
-      return result.cid;
+      console.log(`Upload successful: ${file.name} → ${result.IpfsHash}`);
+      return result.IpfsHash; // Pinata returns IpfsHash instead of cid
     } catch (error) {
       console.error("Error uploading to Pinata:", error);
+      if (error instanceof Error) {
+        throw error;
+      }
       throw new Error("Failed to upload file to IPFS");
     }
   };
@@ -129,43 +165,84 @@ export function useMintEncryptedNFT() {
       // Upload main file to IPFS
       const mainFileCID = await uploadFileToPinata(mainFile);
 
-      // Construct complete metadata
-      const completeMetadata: NFTMetadata = {
-        ...metadata,
-        thumbnail: thumbnailCID,
-        image: imageCID,
-        data: {
-          ...metadata.data,
-          representations: [
+      setState(prev => ({ ...prev, uploadProgress: "Creating metadata..." }));
+
+      // Construct complete metadata with proper IPFS gateway URLs
+      const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL || "https://chocolate-tricky-leopon-55.mypinata.cloud/";
+      
+      const completeMetadata = {
+        name: metadata.name,
+        description: metadata.description,
+        image: `${gatewayUrl}ipfs/${imageCID}`,
+        animation_url: `${gatewayUrl}ipfs/${mainFileCID}`,
+        external_url: `${gatewayUrl}ipfs/${mainFileCID}`,
+        attributes: [
+          {
+            trait_type: "Rarity",
+            value: metadata.rarity
+          },
+          {
+            trait_type: "Category",
+            value: metadata.category
+          },
+          ...metadata.data.tags.map(tag => ({
+            trait_type: "Tag",
+            value: tag
+          }))
+        ],
+        properties: {
+          thumbnail: `${gatewayUrl}ipfs/${thumbnailCID}`,
+          files: [
             {
-              mainFile: mainFileCID,
+              uri: `${gatewayUrl}ipfs/${imageCID}`,
+              type: imageFile.type
             },
-          ],
-        },
+            {
+              uri: `${gatewayUrl}ipfs/${mainFileCID}`,
+              type: mainFile.type
+            }
+          ]
+        }
       };
+
+      setState(prev => ({ ...prev, uploadProgress: "Uploading metadata to IPFS..." }));
+
+      // Upload the complete metadata JSON to IPFS
+      const metadataBlob = new Blob([JSON.stringify(completeMetadata, null, 2)], { 
+        type: 'application/json' 
+      });
+      const metadataFile = new File([metadataBlob], 'metadata.json', { 
+        type: 'application/json' 
+      });
+      const metadataCID = await uploadFileToPinata(metadataFile);
+      
+      // Create the standard IPFS URI
+      const tokenURI = `ipfs://${metadataCID}`;
+      console.log("Metadata uploaded to IPFS:", tokenURI);
 
       setState(prev => ({ 
         ...prev, 
-        uploadProgress: "Encrypting metadata...",
+        uploadProgress: "Encrypting token URI...",
         isUploading: false,
         isMinting: true 
       }));
 
       // Generate a human-readable secret (8 characters, lowercase letters only)
-      // Similar to the working example: "mysecret"
       const secretString = generateReadableSecret(8);
       const secretBytes = new TextEncoder().encode(secretString);
       const secretHex = bytesToHex(secretBytes);
 
-      // Convert metadata to JSON string
-      const metadataJSON = JSON.stringify(completeMetadata);
-
-      // Encrypt the metadata
-      const encryptedMetadata = encryptString(metadataJSON, secretBytes);
-      const encryptedHex = bytesToHex(encryptedMetadata);
+      // Encrypt the IPFS URI (not the entire metadata)
+      const encryptedURI = encryptString(tokenURI, secretBytes);
+      const encryptedHex = bytesToHex(encryptedURI);
 
       // Hash the secret using keccak256
       const secretHash = keccak256(toBytes(secretHex));
+
+      console.log("Token URI:", tokenURI);
+      console.log("Encrypted URI:", encryptedHex);
+      console.log("Secret:", secretString);
+      console.log("Secret Hash:", secretHash);
 
       setState(prev => ({ ...prev, uploadProgress: "Minting NFT..." }));
 
