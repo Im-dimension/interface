@@ -4,7 +4,7 @@ import { useGetMyNFTs } from "@/app/hooks/useGetMyNFTs";
 import { NFTCard } from "@/components/cards/nft-card";
 import { InfoCard } from "@/components/cards/info-card";
 import { useActiveAccount } from "thirdweb/react";
-import { mockNFTs } from "@/lib/constants";
+// import { mockNFTs } from "@/lib/constants";
 import { NFTDetails } from "@/components/cards/nft-details";
 
 export default function WalletPage() {
@@ -65,17 +65,17 @@ export default function WalletPage() {
     );
   }
 
-  // if (nfts.length === 0) {
-  //   console.log(">>> Rendering: No NFTs found");
-  //   return (
-  //     <div className="flex h-full justify-center items-center">
-  //       <InfoCard
-  //         title="No NFTs Yet"
-  //         description="You don't own any NFTs yet. Visit the store to collect some!"
-  //       />
-  //     </div>
-  //   );
-  // }
+  if (nfts.length === 0) {
+    console.log(">>> Rendering: No NFTs found");
+    return (
+      <div className="flex h-full justify-center items-center">
+        <InfoCard
+          title="No NFTs Yet"
+          description="You don't own any NFTs yet. Visit the store to collect some!"
+        />
+      </div>
+    );
+  }
 
   console.log(">>> Rendering: NFT display");
   console.log("Number of NFTs to display:", nfts.length);
@@ -83,7 +83,7 @@ export default function WalletPage() {
   return (
     <>
       <div className="flex-1 overflow-y-auto space-y-4 md:space-y-6">
-        {mockNFTs.map((nft, index) => {
+        {nfts.map((nft, index) => {
           console.log(`Rendering NFT ${index}:`, nft);
           return (
             <div key={nft.tokenId}>
