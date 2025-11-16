@@ -17,7 +17,7 @@ export default function MainLayout({
   return (
     <div className="min-h-screen p-4 md:p-8 lg:p-12 relative">
       {!isAdminPage ? (
-        <div className="fixed inset-0 m-4 md:m-8 lg:m-12 rounded-4xl bg-[url(/purple-bg.png)] bg-cover bg-center bg-no-repeat overflow-hidden flex flex-col">
+        <div className="fixed inset-0 m-4 md:m-8 lg:m-12 rounded-4xl bg-[url(/purple-bg.png)] bg-cover bg-no-repeat overflow-hidden flex flex-col">
           <div className="absolute top-0 left-2 right-2">
             <NavigationTabs />
           </div>
