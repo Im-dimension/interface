@@ -28,9 +28,9 @@ export function MerchItem({ name, price, thumbnail, onBuy }: MerchItemProps) {
       </div>
 
       {/* Item Info */}
-      <div className="flex-1 min-w-0">
-        <h3 className="text-lg font-bold text-[#4a2a1f] truncate">{name}</h3>
-        <p className="text-sm font-semibold text-[#4a2a1f]/80">{price}</p>
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <h3 className="text-lg font-bold text-[#4a2a1f] line-clamp-2">{name}</h3>
+        <p className="text-sm font-semibold text-[#4a2a1f]/80 line-clamp-2">{price}</p>
       </div>
 
       {/* Buy Button */}
