@@ -73,9 +73,9 @@ export function useMintEncryptedNFT() {
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       console.log(`Starting file upload: ${file.name} (${fileSizeMB} MB)`);
       
-      // Check file size limit (100MB)
-      if (file.size > 100 * 1024 * 1024) {
-        throw new Error(`File ${file.name} is too large (${fileSizeMB} MB). Maximum size is 100 MB.`);
+      // Check file size limit (500MB)
+      if (file.size > 500 * 1024 * 1024) {
+        throw new Error(`File ${file.name} is too large (${fileSizeMB} MB). Maximum size is 500 MB.`);
       }
       
       const formData = new FormData();
