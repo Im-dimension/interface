@@ -78,11 +78,27 @@ export function useMintEncryptedNFT() {
         throw new Error(`File ${file.name} is too large (${fileSizeMB} MB). Maximum size is 500 MB.`);
       }
       
+      // Get Pinata JWT from environment variable
+      const pinataJWT = process.env.NEXT_PUBLIC_PINATA_JWT;
+      if (!pinataJWT) {
+        throw new Error("Pinata JWT not configured. Please set NEXT_PUBLIC_PINATA_JWT in environment variables.");
+      }
+
+      // Upload directly to Pinata API from client
       const formData = new FormData();
       formData.append("file", file);
+      
+      // Optional: Add metadata
+      const metadata = JSON.stringify({
+        name: file.name,
+      });
+      formData.append("pinataMetadata", metadata);
 
-      const response = await fetch("/api/pinata-url", {
+      const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${pinataJWT}`,
+        },
         body: formData,
       });
 
@@ -101,12 +117,12 @@ export function useMintEncryptedNFT() {
         }
         
         console.error("Upload failed with error data:", errorData);
-        throw new Error(`Upload failed: ${errorData.message || errorData.error || response.statusText}`);
+        throw new Error(`Upload failed: ${errorData.error?.details || errorData.error?.reason || response.statusText}`);
       }
 
       const result = await response.json();
-      console.log(`Upload successful: ${file.name} → ${result.cid}`);
-      return result.cid;
+      console.log(`Upload successful: ${file.name} → ${result.IpfsHash}`);
+      return result.IpfsHash; // Pinata returns IpfsHash instead of cid
     } catch (error) {
       console.error("Error uploading to Pinata:", error);
       if (error instanceof Error) {
