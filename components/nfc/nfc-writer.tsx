@@ -37,6 +37,24 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
   const [isWriting, setIsWriting] = useState(false);
   const [writeStatus, setWriteStatus] = useState<"idle" | "writing" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+
+  const nfcDataObject = {
+    tokenId: tokenId,
+    secret: data,
+  };
+
+  const nfcDataString = JSON.stringify(nfcDataObject);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(nfcDataString);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
 
   const handleWrite = async () => {
     // Check for Web NFC support
@@ -60,12 +78,12 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
 
       const reader: NDEFReaderLite = new ctor();
 
-      // Prepare the NFC message with the secret
+      // Prepare the NFC message with both token ID and secret in JSON format
       const message: NDEFMessageLite = {
         records: [
           {
             recordType: "text",
-            data: data,
+            data: nfcDataString,
           },
         ],
       };
@@ -73,7 +91,7 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
       // Write to NFC tag
       await reader.write(message);
 
-      console.log("[WebNFC] Successfully wrote to NFC tag:", data);
+      console.log("[WebNFC] Successfully wrote to NFC tag:", nfcDataString);
       setWriteStatus("success");
       setIsWriting(false);
       onSuccess?.();
@@ -114,14 +132,27 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
     <div className="space-y-4">
       {writeStatus === "idle" && (
         <div className="bg-blue-900 border border-blue-500 rounded-lg p-6">
-          <h3 className="text-xl font-bold mb-2">📱 Write Secret to NFC Tag</h3>
+          <h3 className="text-xl font-bold mb-2">📱 Write to NFC Tag</h3>
           <p className="text-sm text-gray-300 mb-4">
-            Write the secret key to an NFC tag for secure storage and easy access.
+            Write the token ID and secret key to an NFC tag for secure storage and easy access.
           </p>
           <div className="bg-black p-3 rounded mb-4">
-            <p className="text-xs text-gray-400 mb-1">Token ID: {tokenId}</p>
-            <p className="text-xs text-gray-400 mb-1">Secret to write:</p>
-            <p className="font-mono text-sm text-yellow-400">{data}</p>
+            <p className="text-xs text-gray-400 mb-2">Data to write:</p>
+            <p className="text-xs text-gray-400 mb-1">Token ID: <span className="font-mono text-cyan-400">{tokenId}</span></p>
+            <p className="text-xs text-gray-400 mb-2">Secret: <span className="font-mono text-yellow-400">{data}</span></p>
+            <div className="mt-3 pt-2 border-t border-gray-700">
+              <p className="text-xs text-gray-500 mb-2">JSON Format:</p>
+              <div className="flex items-start gap-2">
+                <code className="text-xs text-gray-300 flex-1 break-all">{nfcDataString}</code>
+                <button
+                  onClick={handleCopy}
+                  className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors flex-shrink-0"
+                  title="Copy to clipboard"
+                >
+                  {copied ? "✓ Copied!" : "📋 Copy"}
+                </button>
+              </div>
+            </div>
           </div>
           <Button
             label="Write to NFC Tag"
@@ -156,15 +187,29 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">Successfully Written to NFC Tag!</h3>
               <p className="text-sm text-gray-300 mb-3">
-                Your secret key has been written to the NFC tag. You can now use this tag to unlock NFT #{tokenId}.
+                Your NFT data has been written to the NFC tag. You can now use this tag to unlock NFT #{tokenId}.
               </p>
-              <div className="bg-black p-3 rounded">
-                <p className="text-xs text-yellow-400 font-semibold mb-1">⚠️ Important:</p>
-                <ul className="text-xs text-gray-300 space-y-1">
+              <div className="bg-black p-3 rounded mb-3">
+                <p className="text-xs text-yellow-400 font-semibold mb-2">⚠️ Important:</p>
+                <ul className="text-xs text-gray-300 space-y-1 mb-3">
                   <li>• Keep the NFC tag in a safe place</li>
                   <li>• Do not expose it to strong magnetic fields</li>
-                  <li>• The secret is: <span className="font-mono text-yellow-400">{data}</span></li>
+                  <li>• Token ID: <span className="font-mono text-cyan-400">{tokenId}</span></li>
+                  <li>• Secret: <span className="font-mono text-yellow-400">{data}</span></li>
                 </ul>
+                <div className="pt-2 border-t border-gray-700">
+                  <p className="text-xs text-gray-400 mb-2">Data written to NFC:</p>
+                  <div className="flex items-start gap-2">
+                    <code className="text-xs text-gray-300 flex-1 break-all">{nfcDataString}</code>
+                    <button
+                      onClick={handleCopy}
+                      className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors flex-shrink-0"
+                      title="Copy to clipboard"
+                    >
+                      {copied ? "✓ Copied!" : "📋 Copy"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -178,6 +223,25 @@ export function NFCWriter({ data, tokenId, onSuccess, onError, autoStart = false
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">NFC Write Failed</h3>
               <p className="text-sm text-gray-300 mb-3">{errorMessage}</p>
+              
+              <div className="bg-black p-3 rounded mb-3">
+                <p className="text-xs text-gray-400 mb-2">You can still copy the data:</p>
+                <p className="text-xs text-gray-400 mb-1">Token ID: <span className="font-mono text-cyan-400">{tokenId}</span></p>
+                <p className="text-xs text-gray-400 mb-3">Secret: <span className="font-mono text-yellow-400">{data}</span></p>
+                <div className="pt-2 border-t border-gray-700">
+                  <p className="text-xs text-gray-500 mb-2">JSON Format:</p>
+                  <div className="flex items-start gap-2">
+                    <code className="text-xs text-gray-300 flex-1 break-all">{nfcDataString}</code>
+                    <button
+                      onClick={handleCopy}
+                      className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors flex-shrink-0"
+                      title="Copy to clipboard"
+                    >
+                      {copied ? "✓ Copied!" : "📋 Copy"}
+                    </button>
+                  </div>
+                </div>
+              </div>
               
               {isIOS() && (
                 <div className="bg-black p-3 rounded mb-3">

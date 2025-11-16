@@ -149,7 +149,24 @@ export default function AdminPage() {
                   <p className="text-sm text-yellow-400 mb-2">
                     <strong>⚠️ SAVE THIS SECRET - It cannot be recovered!</strong>
                   </p>
-                  <p className="font-mono text-xs break-all">{secret}</p>
+                  <p className="font-mono text-xs break-all mb-3">{secret}</p>
+                  <div className="pt-3 border-t border-gray-700">
+                    <p className="text-xs text-gray-400 mb-2">Copy JSON format:</p>
+                    <div className="flex items-start gap-2">
+                      <code className="text-xs text-gray-300 flex-1 break-all">
+                        {JSON.stringify({ tokenId, secret })}
+                      </code>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(JSON.stringify({ tokenId, secret }));
+                        }}
+                        className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors flex-shrink-0"
+                        title="Copy to clipboard"
+                      >
+                        📋 Copy JSON
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

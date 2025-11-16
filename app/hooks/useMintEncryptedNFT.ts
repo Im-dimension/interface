@@ -269,9 +269,38 @@ export function useMintEncryptedNFT() {
       // The result contains the transaction hash
       const transactionHash = result.transactionHash;
       
-      // Parse events to get token ID
-      // The EncryptedTokenMinted event should contain the tokenId
-      const tokenId = "pending"; // You'll need to parse this from events
+      console.log("Transaction hash:", transactionHash);
+      
+      // Wait for the transaction receipt to get the events
+      setState(prev => ({ ...prev, uploadProgress: "Confirming transaction..." }));
+      
+      // Import receipt function
+      const { waitForReceipt } = await import("thirdweb");
+      const receipt = await waitForReceipt({
+        client: thirdwebClient,
+        chain: polkadotHubTestnet,
+        transactionHash,
+      });
+
+      console.log("Transaction receipt:", receipt);
+
+      // Parse the EncryptedTokenMinted event to get the token ID
+      let tokenId = "0";
+      
+      if (receipt.logs && receipt.logs.length > 0) {
+        // Find the EncryptedTokenMinted event
+        // The event signature is: EncryptedTokenMinted(uint256 indexed tokenId, address indexed minter, bytes32 secretHash, uint256 price)
+        // The tokenId is the first indexed parameter (topic[1])
+        const encryptedTokenMintedTopic = "0x" + keccak256(toBytes("EncryptedTokenMinted(uint256,address,bytes32,uint256)")).slice(2);
+        
+        const mintEvent = receipt.logs.find(log => log.topics && log.topics[0] === encryptedTokenMintedTopic);
+        
+        if (mintEvent && mintEvent.topics && mintEvent.topics.length > 1 && mintEvent.topics[1]) {
+          // Token ID is in topics[1] (first indexed parameter)
+          tokenId = BigInt(mintEvent.topics[1]).toString();
+          console.log("Extracted token ID from event:", tokenId);
+        }
+      }
 
       setState(prev => ({
         ...prev,
