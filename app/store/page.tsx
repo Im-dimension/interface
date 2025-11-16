@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { MerchItem } from "@/components/cards/merch-item";
 
 const merchItems = [
   {
@@ -37,34 +37,10 @@ export default function StorePage() {
 
   return (
     <div className="w-full h-full overflow-y-auto p-4 md:p-6">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">Merchandise Store</h1>
+      <h1 className="text-yellow-500 text-2xl md:text-3xl font-bold mb-6">Merchandise Store</h1>
       <div className="space-y-4">
         {merchItems.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center gap-4 p-4 bg-card rounded-lg border border-border hover:border-primary/50 transition-colors"
-          >
-            {/* Thumbnail */}
-            <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 bg-muted rounded-md overflow-hidden">
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                Thumbnail
-              </div>
-            </div>
-
-            {/* Item Info */}
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold truncate">{item.name}</h3>
-              <p className="text-muted-foreground">{item.price}</p>
-            </div>
-
-            {/* Buy Button */}
-            <Button
-              onClick={() => handleBuy(item.name)}
-              className="flex-shrink-0"
-            >
-              Buy
-            </Button>
-          </div>
+          <MerchItem key={item.id} {...item} onBuy={handleBuy} />
         ))}
       </div>
     </div>
