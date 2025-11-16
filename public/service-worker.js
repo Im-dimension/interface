@@ -16,6 +16,12 @@ self.addEventListener('install', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
+  // Skip caching for chrome-extension:// URLs and non-GET requests
+  const url = new URL(event.request.url)
+  if (url.protocol === 'chrome-extension:' || event.request.method !== 'GET') {
+    return
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
