@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Increase body size limit for API routes (100MB)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
+  },
   webpack: (config, { isServer }) => {
     // Exclude test files and dev dependencies from bundling
     config.module = config.module || {};

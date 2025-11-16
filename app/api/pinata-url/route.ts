@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { uploadFile, type PinataConfig } from "pinata";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // Increase timeout to 60 seconds for large files
 
 export async function POST(request: NextRequest) {
   try {

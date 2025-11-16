@@ -68,6 +68,14 @@ export default function AdminPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: keyof typeof files) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (100MB limit)
+      const maxSize = 100 * 1024 * 1024; // 100MB
+      if (file.size > maxSize) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File is too large (${sizeMB} MB). Maximum size is 100 MB. Please compress or reduce the file size.`);
+        e.target.value = ''; // Reset the input
+        return;
+      }
       setFiles((prev) => ({ ...prev, [fileType]: file }));
     }
   };
@@ -336,6 +344,7 @@ export default function AdminPage() {
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Main File (GLB/Video/etc) <span className="text-red-500">*</span>
+                  <span className="text-xs text-gray-500 ml-2">(Max 100 MB)</span>
                 </label>
                 <input
                   type="file"
@@ -344,7 +353,9 @@ export default function AdminPage() {
                   className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
                 {files.mainFile && (
-                  <p className="text-sm text-gray-400 mt-1">{files.mainFile.name}</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    {files.mainFile.name} ({(files.mainFile.size / (1024 * 1024)).toFixed(2)} MB)
+                  </p>
                 )}
               </div>
             </div>
